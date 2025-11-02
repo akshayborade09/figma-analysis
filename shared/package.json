@@ -1,0 +1,21 @@
+{
+  "name": "figma-ux-analysis-shared",
+  "version": "1.0.0",
+  "description": "Shared utilities and types for Figma UX Analysis tool",
+  "type": "module",
+  "main": "utils.js",
+  "types": "types.ts",
+  "exports": {
+    "./constants": "./constants.js",
+    "./types": "./types.ts",
+    "./utils": "./utils.js"
+  },
+  "keywords": [
+    "figma",
+    "ux",
+    "analysis",
+    "shared"
+  ],
+  "license": "MIT"
+}
+

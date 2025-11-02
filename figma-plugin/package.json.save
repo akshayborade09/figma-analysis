@@ -1,0 +1,23 @@
+cd cloudflare-worker
+./setup-secrets.sh
+npm run deploy
+
+cd ../figma-plugin
+npm run build
+# Import to Figma
+{
+    "name": "figma-ux-analysis-plugin",
+    "version": "1.0.0",
+    "description": "Figma plugin for automated UX analysis using Claude AI",
+    "scripts": {
+      "build": "tsc --watch",
+      "dev": "tsc --watch"
+    },
+    "dependencies": {},
+    "devDependencies": {
+      "@figma/plugin-typings": "^1.90.0",
+      "typescript": "^5.0.0"
+    }
+  }
+clear
+

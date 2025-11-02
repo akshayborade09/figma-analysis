@@ -1,0 +1,10 @@
+name = "figma-ux-analyzer"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[env.production]
+name = "figma-ux-analyzer-prod"
+
+# Set these via: wrangler secret put ANTHROPIC_API_KEY
+# wrangler secret put FIGMA_ACCESS_TOKEN

@@ -1,0 +1,13 @@
+{
+  "name": "UX Analysis Bot",
+  "id": "ux-analysis-bot",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "permissions": ["currentuser"],
+  "networkAccess": {
+    "allowedDomains": ["*"],
+    "reasoning": "This plugin needs to connect to a Cloudflare Worker endpoint to send frame data for AI-powered UX analysis and receive feedback."
+  }
+}

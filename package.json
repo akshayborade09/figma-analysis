@@ -1,0 +1,40 @@
+{
+  "name": "figma-ux-analysis",
+  "version": "1.0.0",
+  "description": "Automated UX analysis for Figma designs using Claude AI",
+  "main": "index.js",
+  "scripts": {
+    "setup": "npm install --prefix figma-plugin && npm install --prefix cloudflare-worker && npm install --prefix shared",
+    "dev:plugin": "cd figma-plugin && npm run dev",
+    "dev:worker": "cd cloudflare-worker && npm run dev",
+    "build:plugin": "cd figma-plugin && npm run build",
+    "deploy:worker": "cd cloudflare-worker && npm run deploy",
+    "tail:worker": "cd cloudflare-worker && npm run tail",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "figma",
+    "ux",
+    "analysis",
+    "accessibility",
+    "usability",
+    "claude",
+    "ai",
+    "cloudflare"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/figma-ux-analysis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/figma-ux-analysis/issues"
+  },
+  "homepage": "https://github.com/your-username/figma-ux-analysis#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  }
+}
+

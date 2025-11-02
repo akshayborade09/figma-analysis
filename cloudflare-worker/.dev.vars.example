@@ -1,0 +1,15 @@
+# Development Environment Variables
+# Copy this file to .dev.vars for local development
+# NEVER commit .dev.vars to git!
+
+# Anthropic API Key
+# Get from: https://console.anthropic.com/
+ANTHROPIC_API_KEY=sk-ant-api...your-key-here
+
+# Figma Access Token
+# Get from: https://www.figma.com/developers/api#access-tokens
+FIGMA_ACCESS_TOKEN=figd_your-token-here
+
+# Optional: Development mode (enables verbose logging)
+DEV_MODE=true
+

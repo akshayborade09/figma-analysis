@@ -1,0 +1,40 @@
+# Cursor AI ignore patterns
+# Files that should not be indexed or read by Cursor
+
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+*.js.map
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Cloudflare
+.wrangler/
+
+# Git
+.git/
+
+# Large files
+*.zip
+*.tar.gz
+*.rar
+

@@ -1,0 +1,219 @@
+###
+# Figma UX Analysis - API Testing
+# Use with REST Client extension in VS Code or similar tools
+###
+
+@baseUrl = https://figma-ux-analyzer.your-account.workers.dev
+# @baseUrl = http://localhost:8787
+
+### 1. Health Check
+GET {{baseUrl}}/health
+Content-Type: application/json
+
+### 2. Test Connection
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "test": true
+}
+
+### 3. Full Analysis - Single Frame
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "fileKey": "abc123def456",
+  "fileName": "Test Design File",
+  "fileUrl": "https://figma.com/file/abc123def456",
+  "pageName": "Page 1",
+  "pageId": "0:1",
+  "frameCount": 1,
+  "analysisType": "selected",
+  "frames": [
+    {
+      "id": "123:456",
+      "name": "Login Screen",
+      "width": 375,
+      "height": 812,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "config": {
+    "designType": "mobile",
+    "platform": "ios",
+    "frameworks": {
+      "accessibility": true,
+      "heuristics": true,
+      "gestalt": true,
+      "platformGuidelines": true,
+      "uxLaws": true
+    }
+  },
+  "user": {
+    "name": "Test User",
+    "email": "test@example.com",
+    "id": "test-user-123",
+    "timestamp": "2025-10-30T12:00:00.000Z"
+  }
+}
+
+### 4. Full Analysis - Multiple Frames
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "fileKey": "abc123def456",
+  "fileName": "Multi-Screen Design",
+  "fileUrl": "https://figma.com/file/abc123def456",
+  "pageName": "Main Flow",
+  "pageId": "0:1",
+  "frameCount": 3,
+  "analysisType": "page",
+  "frames": [
+    {
+      "id": "123:456",
+      "name": "Login Screen",
+      "width": 375,
+      "height": 812,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "123:789",
+      "name": "Home Screen",
+      "width": 375,
+      "height": 812,
+      "x": 500,
+      "y": 0
+    },
+    {
+      "id": "123:999",
+      "name": "Profile Screen",
+      "width": 375,
+      "height": 812,
+      "x": 1000,
+      "y": 0
+    }
+  ],
+  "config": {
+    "designType": "mobile",
+    "platform": "ios",
+    "frameworks": {
+      "accessibility": true,
+      "heuristics": true,
+      "gestalt": false,
+      "platformGuidelines": true,
+      "uxLaws": false
+    }
+  },
+  "user": {
+    "name": "Test User",
+    "email": "test@example.com",
+    "id": "test-user-123",
+    "timestamp": "2025-10-30T12:00:00.000Z"
+  }
+}
+
+### 5. Web Application Analysis
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "fileKey": "web123",
+  "fileName": "Dashboard Design",
+  "fileUrl": "https://figma.com/file/web123",
+  "pageName": "Dashboard",
+  "pageId": "0:1",
+  "frameCount": 1,
+  "analysisType": "selected",
+  "frames": [
+    {
+      "id": "456:789",
+      "name": "Analytics Dashboard",
+      "width": 1440,
+      "height": 900,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "config": {
+    "designType": "dashboard",
+    "platform": "web",
+    "frameworks": {
+      "accessibility": true,
+      "heuristics": true,
+      "gestalt": true,
+      "platformGuidelines": true,
+      "uxLaws": true
+    }
+  },
+  "user": {
+    "name": "Dashboard Designer",
+    "email": "designer@example.com",
+    "id": "user-456",
+    "timestamp": "2025-10-30T12:00:00.000Z"
+  }
+}
+
+### 6. Android Analysis
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "fileKey": "android123",
+  "fileName": "Material Design App",
+  "fileUrl": "https://figma.com/file/android123",
+  "pageName": "Screens",
+  "pageId": "0:1",
+  "frameCount": 1,
+  "analysisType": "selected",
+  "frames": [
+    {
+      "id": "789:123",
+      "name": "Checkout Screen",
+      "width": 360,
+      "height": 800,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "config": {
+    "designType": "ecommerce",
+    "platform": "android",
+    "frameworks": {
+      "accessibility": true,
+      "heuristics": true,
+      "gestalt": true,
+      "platformGuidelines": true,
+      "uxLaws": true
+    }
+  },
+  "user": {
+    "name": "Android Dev",
+    "email": "android@example.com",
+    "id": "user-789",
+    "timestamp": "2025-10-30T12:00:00.000Z"
+  }
+}
+
+### 7. Error Test - Missing File Key
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "fileName": "Test File",
+  "frames": []
+}
+
+### 8. Error Test - Invalid Payload
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "invalid": "data"
+}
+
+###
+
