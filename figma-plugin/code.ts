@@ -103,6 +103,10 @@ async function performAnalysis(config: any) {
       fileUrl: `https://www.figma.com/design/${fileKey}`,
       frameData: frameData,
       userContext: config.context || '', // User-provided context for analysis
+      aiConfig: {
+        provider: config.aiProvider || '',
+        apiKey: config.apiKey || ''
+      },
       config: config,
       metadata: {
         triggeredBy: figma.currentUser?.name || 'Unknown',

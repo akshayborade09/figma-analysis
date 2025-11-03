@@ -39,9 +39,29 @@ export default {
         }, 200, corsHeaders);
       }
   
-      // Validate environment variables
-      if (!env.AIML_API_KEY || !env.FIGMA_ACCESS_TOKEN) {
-        throw new Error('Missing API keys. Set AIML_API_KEY and FIGMA_ACCESS_TOKEN');
+      // Get AI configuration from user or fallback to environment
+      const aiProvider = payload.aiConfig?.provider || 'aiml';
+      const userApiKey = payload.aiConfig?.apiKey;
+      
+      // Determine which API key to use
+      let aiApiKey;
+      if (userApiKey) {
+        aiApiKey = userApiKey; // Use user's key
+        console.log(`🔑 Using user-provided ${aiProvider} API key`);
+      } else {
+        // Fallback to environment key (for backward compatibility)
+        aiApiKey = env.AIML_API_KEY;
+        console.log(`🔑 Using default AIML API key from environment`);
+      }
+      
+      // Validate we have an AI API key
+      if (!aiApiKey) {
+        throw new Error('No API key available. Please provide your API key in the plugin.');
+      }
+      
+      // Validate Figma token
+      if (!env.FIGMA_ACCESS_TOKEN) {
+        throw new Error('Missing FIGMA_ACCESS_TOKEN. Please set it as a worker secret.');
       }
   
       // Validate file key exists
@@ -65,7 +85,7 @@ export default {
       const results = [];
       for (const frame of frames) {
         try {
-          const result = await analyzeFrame(frame, payload, env);
+          const result = await analyzeFrame(frame, payload, env, aiProvider, aiApiKey);
           results.push(result);
           console.log(`✅ Analyzed: ${frame.name}`);
         } catch (error) {
@@ -99,7 +119,7 @@ export default {
   /**
    * Analyze single frame
    */
-  async function analyzeFrame(frame, payload, env) {
+  async function analyzeFrame(frame, payload, env, aiProvider, aiApiKey) {
     console.log(`📊 Starting analysis for frame: ${frame.name} (ID: ${frame.id})`);
     
     try {
@@ -122,13 +142,14 @@ export default {
         console.warn(`⚠️  Large image size: ${imageSizeKB} KB (may cause issues)`);
       }
 
-      // 3. Analyze with AIML API
-      console.log('🤖 Step 3: Sending to AIML API...');
-      const feedbackItems = await analyzeWithAIML(
+      // 3. Analyze with selected AI provider
+      console.log(`🤖 Step 3: Sending to ${aiProvider} AI...`);
+      const feedbackItems = await analyzeWithAI(
         imageBase64,
         frame,
         payload.config,
-        env.AIML_API_KEY,
+        aiApiKey,
+        aiProvider,
         payload.userContext || ''
       );
       console.log(`✅ Received ${feedbackItems.length} feedback items`);
@@ -216,6 +237,55 @@ export default {
     return btoa(binary);
   }
   
+  /**
+   * Route to appropriate AI provider
+   */
+  async function analyzeWithAI(imageBase64, frame, config, apiKey, provider, userContext = '') {
+    console.log(`🔀 Routing to ${provider} provider...`);
+    
+    switch (provider.toLowerCase()) {
+      case 'aiml':
+        return await analyzeWithAIML(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'openai':
+        return await analyzeWithOpenAI(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'anthropic':
+        return await analyzeWithClaude(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'gemini':
+      case 'google':
+        return await analyzeWithGemini(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'groq':
+        return await analyzeWithGroq(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'openrouter':
+        return await analyzeWithOpenRouter(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'huggingface':
+        return await analyzeWithHuggingFace(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'cloudflare':
+        return await analyzeWithCloudflare(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'together':
+        return await analyzeWithTogether(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'replicate':
+        return await analyzeWithReplicate(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'cohere':
+        return await analyzeWithCohere(imageBase64, frame, config, apiKey, userContext);
+      
+      case 'mistral':
+        return await analyzeWithMistral(imageBase64, frame, config, apiKey, userContext);
+      
+      default:
+        throw new Error(`Unsupported AI provider: ${provider}. Please select a valid provider.`);
+    }
+  }
+
   /**
    * Analyze with AIML API (GPT-4o-mini Vision - FREE)
    */
@@ -581,6 +651,88 @@ RESPOND WITH ONLY THE JSON ARRAY. NO OTHER TEXT.`;
   }
   
   
+  /**
+   * AI Provider Implementations (Stubs - to be implemented)
+   */
+  
+  async function analyzeWithOpenAI(imageBase64, frame, config, apiKey, userContext) {
+    // Use OpenAI API directly (similar structure to AIML)
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: prompt },
+              { type: 'image_url', image_url: { url: `data:image/png;base64,${imageBase64}` } }
+            ]
+          }
+        ],
+        temperature: 0.4,
+        max_tokens: 4096
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`OpenAI API error (${response.status}): ${await response.text()}`);
+    }
+    
+    const result = await response.json();
+    const analysisText = result.choices[0].message.content;
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from OpenAI response');
+    return JSON.parse(jsonMatch[0]);
+  }
+
+  async function analyzeWithClaude(imageBase64, frame, config, apiKey, userContext) {
+    throw new Error('Claude (Anthropic) provider not yet implemented. Coming soon!');
+  }
+
+  async function analyzeWithGemini(imageBase64, frame, config, apiKey, userContext) {
+    throw new Error('Gemini provider not yet implemented. Coming soon!');
+  }
+
+  async function analyzeWithGroq(imageBase64, frame, config, apiKey, userContext) {
+    throw new Error('Groq provider not yet implemented. Coming soon!');
+  }
+
+  async function analyzeWithOpenRouter(imageBase64, frame, config, apiKey, userContext) {
+    throw new Error('OpenRouter provider not yet implemented. Coming soon!');
+  }
+
+  async function analyzeWithHuggingFace(imageBase64, frame, config, apiKey, userContext) {
+    throw new Error('Hugging Face provider not yet implemented. Coming soon!');
+  }
+
+  async function analyzeWithCloudflare(imageBase64, frame, config, apiKey, userContext) {
+    throw new Error('Cloudflare Workers AI provider not yet implemented. Coming soon!');
+  }
+
+  async function analyzeWithTogether(imageBase64, frame, config, apiKey, userContext) {
+    throw new Error('Together AI provider not yet implemented. Coming soon!');
+  }
+
+  async function analyzeWithReplicate(imageBase64, frame, config, apiKey, userContext) {
+    throw new Error('Replicate provider not yet implemented. Coming soon!');
+  }
+
+  async function analyzeWithCohere(imageBase64, frame, config, apiKey, userContext) {
+    throw new Error('Cohere provider not yet implemented. Coming soon!');
+  }
+
+  async function analyzeWithMistral(imageBase64, frame, config, apiKey, userContext) {
+    throw new Error('Mistral AI provider not yet implemented. Coming soon!');
+  }
+
   /**
    * Utility functions
    */

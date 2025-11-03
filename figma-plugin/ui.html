@@ -36,10 +36,6 @@
 
     /* Header */
     .header {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      line-height: 1.5;
       margin-bottom: 24px;
     }
 
@@ -148,6 +144,130 @@
       font-weight: 400;
       line-height: 1.5;
       color: #A3A3A3;
+    }
+
+    /* API Key Section */
+    .api-key-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .provider-select {
+      flex: 1;
+      height: 40px;
+      background: #2c2c2c;
+      border: 1px solid #525252;
+      border-radius: 8px;
+      padding: 12px 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: #737373;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .provider-select option {
+      background: #2c2c2c;
+      color: #E5E5E5;
+    }
+
+    .provider-select option:first-child {
+      color: #737373;
+    }
+
+    .provider-select:focus {
+      outline: none;
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    .api-key-input-wrapper {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .api-key-input {
+      width: 100%;
+      height: 40px;
+      background: #2c2c2c;
+      border: 1px solid #525252;
+      border-radius: 8px;
+      padding: 12px 40px 12px 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: #D4D4D4;
+      transition: all 0.2s;
+    }
+
+    .api-key-input::placeholder {
+      color: #737373;
+    }
+
+    .api-key-input:focus {
+      outline: none;
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    .copy-btn {
+      position: absolute;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s;
+      padding: 0;
+    }
+
+    .copy-btn:hover {
+      opacity: 0.7;
+    }
+
+    .copy-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .test-connection-btn {
+      width: 100%;
+      height: 40px;
+      background: #404040;
+      border: none;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #ffffff;
+    }
+
+    .test-connection-btn:hover {
+      background: #4a4a4a;
+    }
+
+    .test-connection-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .test-connection-btn svg {
+      width: 16px;
+      height: 16px;
     }
 
     /* Frame Selection */
@@ -394,6 +514,10 @@
 </head>
 <body>
   <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>UX Analysis for feedback</h1>
+    </div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -401,22 +525,59 @@
       <div class="section">
         <div class="section-title">Figma file URL (Desktop app only)</div>
         
-        <div class="url-input-group">
-          <input 
-            type="text" 
-            id="fileUrl" 
-            class="url-input" 
-            placeholder="Paste your figma file URL here"
-          >
-          <button id="testBtn" class="test-btn">
-            <svg width="12" height="12" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3.25 12.4167L0.936887 10.1036C0.741625 9.90829 0.741624 9.59171 0.936886 9.39645L3.25 7.08333M9.25 6.08333L11.5631 3.77022C11.7584 3.57496 11.7584 3.25838 11.5631 3.06311L9.25 0.75M1.58333 9.75H11.75M0.75 3.41667H11.0833" stroke="#28A857" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Test connection</span>
-          </button>
-        </div>
+        <input 
+          type="text" 
+          id="fileUrl" 
+          class="url-input" 
+          placeholder="Paste your figma file URL here"
+        >
 
         <p class="help-text">Go to Share > Share with Anyone > Copy link and paste above</p>
+      </div>
+
+      <!-- API Key Section -->
+      <div class="section">
+        <div class="section-title">API Key</div>
+        
+        <div class="api-key-group">
+          <select id="aiProvider" class="provider-select">
+            <option value="">API Provider</option>
+            <option value="groq">Groq</option>
+            <option value="gemini">Gemini</option>
+            <option value="aiml">AI/ML API</option>
+            <option value="openrouter">OpenRouter</option>
+            <option value="huggingface">Hugging Face</option>
+            <option value="cloudflare">Cloudflare Workers</option>
+            <option value="openai">OpenAI</option>
+            <option value="together">Together AI</option>
+            <option value="replicate">Replicate</option>
+            <option value="anthropic">Claude</option>
+            <option value="cohere">Cohere</option>
+            <option value="mistral">Mistral AI</option>
+          </select>
+
+          <div class="api-key-input-wrapper">
+            <input 
+              type="password" 
+              id="apiKeyInput" 
+              class="api-key-input" 
+              placeholder="Paste your API Key here"
+            >
+            <button id="copyBtn" class="copy-btn" title="Copy API Key">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5.5" y="5.5" width="8" height="8" rx="1" stroke="#A3A3A3" stroke-width="1.5"/>
+                <path d="M3.5 10.5H2.5C1.94772 10.5 1.5 10.0523 1.5 9.5V2.5C1.5 1.94772 1.94772 1.5 2.5 1.5H9.5C10.0523 1.5 10.5 1.94772 10.5 2.5V3.5" stroke="#A3A3A3" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button id="testConnectionBtn" class="test-connection-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3.25 12.4167L0.936887 10.1036C0.741625 9.90829 0.741624 9.59171 0.936886 9.39645L3.25 7.08333M9.25 6.08333L11.5631 3.77022C11.7584 3.57496 11.7584 3.25838 11.5631 3.06311L9.25 0.75M1.58333 9.75H11.75M0.75 3.41667H11.0833" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Test connection</span>
+        </button>
       </div>
 
       <!-- Frame Selection Section -->
@@ -506,10 +667,15 @@
     let selectedMode = 'single';
     let selectedCount = 0;
     let fileUrl = '';
+    let aiProvider = '';
+    let apiKey = '';
 
     // Elements
     const fileUrlInput = document.getElementById('fileUrl');
-    const testBtn = document.getElementById('testBtn');
+    const aiProviderSelect = document.getElementById('aiProvider');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const copyBtn = document.getElementById('copyBtn');
+    const testConnectionBtn = document.getElementById('testConnectionBtn');
     const contextInput = document.getElementById('contextInput');
     const radioOptions = document.querySelectorAll('.radio-option');
     const frameText = document.getElementById('frameText');
@@ -520,10 +686,22 @@
     const toastIcon = document.getElementById('toastIcon');
     const toastText = document.getElementById('toastText');
 
-    // Load saved URL
+    // Load saved URL and API config
     try {
       const stored = localStorage.getItem('fileUrl');
       if (stored) fileUrlInput.value = stored;
+      
+      const storedProvider = localStorage.getItem('aiProvider');
+      if (storedProvider) {
+        aiProviderSelect.value = storedProvider;
+        aiProvider = storedProvider;
+      }
+      
+      const storedKey = localStorage.getItem('apiKey');
+      if (storedKey) {
+        apiKeyInput.value = storedKey;
+        apiKey = storedKey;
+      }
     } catch (e) {
       console.log('localStorage not available');
     }
@@ -539,6 +717,88 @@
       updateAnalyzeButton();
     });
 
+    // Handle AI Provider selection
+    aiProviderSelect.addEventListener('change', () => {
+      aiProvider = aiProviderSelect.value;
+      try {
+        localStorage.setItem('aiProvider', aiProvider);
+      } catch (e) {
+        console.log('Cannot save to localStorage');
+      }
+      updateAnalyzeButton();
+    });
+
+    // Handle API Key input
+    apiKeyInput.addEventListener('input', () => {
+      apiKey = apiKeyInput.value.trim();
+      try {
+        localStorage.setItem('apiKey', apiKey);
+      } catch (e) {
+        console.log('Cannot save to localStorage');
+      }
+      updateAnalyzeButton();
+    });
+
+    // Copy API Key to clipboard
+    copyBtn.addEventListener('click', async () => {
+      const key = apiKeyInput.value;
+      if (!key) {
+        showToast('No API key to copy', 'error');
+        return;
+      }
+      
+      try {
+        await navigator.clipboard.writeText(key);
+        showToast('API key copied!', 'success');
+      } catch (e) {
+        // Fallback for older browsers
+        const tempInput = document.createElement('input');
+        tempInput.value = key;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showToast('API key copied!', 'success');
+      }
+    });
+
+    // Test Connection Button
+    testConnectionBtn.addEventListener('click', () => {
+      if (!fileUrl) {
+        showToast('Please enter Figma file URL first', 'error');
+        return;
+      }
+      
+      if (!aiProvider) {
+        showToast('Please select an AI provider', 'error');
+        return;
+      }
+      
+      if (!apiKey) {
+        showToast('Please enter API key', 'error');
+        return;
+      }
+
+      testConnectionBtn.disabled = true;
+      showToast('Testing connection...', 'info');
+
+      parent.postMessage({
+        pluginMessage: {
+          type: 'test-connection',
+          config: {
+            fileUrl: fileUrl,
+            aiProvider: aiProvider,
+            apiKey: apiKey
+          }
+        }
+      }, '*');
+
+      // Re-enable after 3 seconds
+      setTimeout(() => {
+        testConnectionBtn.disabled = false;
+      }, 3000);
+    });
+
     // Radio option selection
     radioOptions.forEach(option => {
       option.addEventListener('click', () => {
@@ -549,27 +809,20 @@
       });
     });
 
-    // Test connection button
-    testBtn.addEventListener('click', () => {
-      const url = fileUrlInput.value.trim();
-      if (!url) {
-        showToast('Please enter a Figma file URL', 'error');
-        return;
-      }
-
-      testBtn.disabled = true;
-      showToast('Testing connection...', 'loading');
-
-      parent.postMessage({
-        pluginMessage: {
-          type: 'test-connection'
-        }
-      }, '*');
-    });
-
     // Analyze button
     analyzeBtn.addEventListener('click', () => {
       if (selectedCount === 0 || !fileUrl) return;
+
+      // Validate API provider and key
+      if (!aiProvider) {
+        showToast('Please select an AI provider', 'error');
+        return;
+      }
+      
+      if (!apiKey) {
+        showToast('Please enter API key', 'error');
+        return;
+      }
 
       analyzeBtn.disabled = true;
       showToast('Analysis in progress...', 'loading');
@@ -580,7 +833,9 @@
           config: {
             mode: selectedMode,
             fileUrl: fileUrl,
-            context: contextInput.value.trim() // Include user context
+            context: contextInput.value.trim(),
+            aiProvider: aiProvider,
+            apiKey: apiKey
           }
         }
       }, '*');
@@ -597,12 +852,14 @@
       const req = requirements[selectedMode];
       const validCount = selectedCount >= req.min && selectedCount <= req.max;
       const hasUrl = fileUrl.length > 0;
+      const hasProvider = aiProvider.length > 0;
+      const hasKey = apiKey.length > 0;
 
       // Always keep the same text
       analyzeBtn.textContent = 'Analyse selected';
 
       // Enable/disable based on conditions
-      analyzeBtn.disabled = !(validCount && hasUrl);
+      analyzeBtn.disabled = !(validCount && hasUrl && hasProvider && hasKey);
     }
 
     // Update selection UI
