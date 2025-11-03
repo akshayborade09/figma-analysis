@@ -1,5 +1,5 @@
 {
-  "name": "UX Analysis Bot",
+  "name": "UX Analysis for feedback",
   "id": "ux-analysis-bot",
   "api": "1.0.0",
   "main": "code.js",
