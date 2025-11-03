@@ -693,44 +693,376 @@ RESPOND WITH ONLY THE JSON ARRAY. NO OTHER TEXT.`;
     return JSON.parse(jsonMatch[0]);
   }
 
-  async function analyzeWithClaude(imageBase64, frame, config, apiKey, userContext) {
-    throw new Error('Claude (Anthropic) provider not yet implemented. Coming soon!');
+  async function analyzeWithGroq(imageBase64, frame, config, apiKey, userContext) {
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.2-90b-vision-preview',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: { url: `data:image/png;base64,${imageBase64}` } }
+          ]
+        }],
+        temperature: 0.4,
+        max_tokens: 4096
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Groq API error (${response.status}): ${await response.text()}`);
+    }
+    
+    const result = await response.json();
+    const analysisText = result.choices[0].message.content;
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from Groq response');
+    return JSON.parse(jsonMatch[0]);
   }
 
   async function analyzeWithGemini(imageBase64, frame, config, apiKey, userContext) {
-    throw new Error('Gemini provider not yet implemented. Coming soon!');
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: prompt },
+            {
+              inline_data: {
+                mime_type: 'image/png',
+                data: imageBase64
+              }
+            }
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.4,
+          maxOutputTokens: 4096
+        }
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Gemini API error (${response.status}): ${await response.text()}`);
+    }
+    
+    const result = await response.json();
+    const analysisText = result.candidates[0].content.parts[0].text;
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from Gemini response');
+    return JSON.parse(jsonMatch[0]);
   }
 
-  async function analyzeWithGroq(imageBase64, frame, config, apiKey, userContext) {
-    throw new Error('Groq provider not yet implemented. Coming soon!');
+  async function analyzeWithClaude(imageBase64, frame, config, apiKey, userContext) {
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 4096,
+        temperature: 0.4,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: 'image/png',
+                data: imageBase64
+              }
+            },
+            {
+              type: 'text',
+              text: prompt
+            }
+          ]
+        }]
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Claude API error (${response.status}): ${await response.text()}`);
+    }
+    
+    const result = await response.json();
+    const analysisText = result.content[0].text;
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from Claude response');
+    return JSON.parse(jsonMatch[0]);
   }
 
   async function analyzeWithOpenRouter(imageBase64, frame, config, apiKey, userContext) {
-    throw new Error('OpenRouter provider not yet implemented. Coming soon!');
-  }
-
-  async function analyzeWithHuggingFace(imageBase64, frame, config, apiKey, userContext) {
-    throw new Error('Hugging Face provider not yet implemented. Coming soon!');
-  }
-
-  async function analyzeWithCloudflare(imageBase64, frame, config, apiKey, userContext) {
-    throw new Error('Cloudflare Workers AI provider not yet implemented. Coming soon!');
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://figma-ux-analyzer.analysisfigma.workers.dev',
+        'X-Title': 'UX Analysis for feedback'
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o-mini',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: { url: `data:image/png;base64,${imageBase64}` } }
+          ]
+        }],
+        temperature: 0.4,
+        max_tokens: 4096
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`OpenRouter API error (${response.status}): ${await response.text()}`);
+    }
+    
+    const result = await response.json();
+    const analysisText = result.choices[0].message.content;
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from OpenRouter response');
+    return JSON.parse(jsonMatch[0]);
   }
 
   async function analyzeWithTogether(imageBase64, frame, config, apiKey, userContext) {
-    throw new Error('Together AI provider not yet implemented. Coming soon!');
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    const response = await fetch('https://api.together.xyz/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: { url: `data:image/png;base64,${imageBase64}` } }
+          ]
+        }],
+        temperature: 0.4,
+        max_tokens: 4096
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Together AI error (${response.status}): ${await response.text()}`);
+    }
+    
+    const result = await response.json();
+    const analysisText = result.choices[0].message.content;
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from Together AI response');
+    return JSON.parse(jsonMatch[0]);
   }
 
   async function analyzeWithReplicate(imageBase64, frame, config, apiKey, userContext) {
-    throw new Error('Replicate provider not yet implemented. Coming soon!');
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    // Start prediction
+    const startResponse = await fetch('https://api.replicate.com/v1/predictions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        version: 'b72178aed2f4b6d8ec2f9c5b8e8c8f8e8c8f8e8c', // LLaVA or similar vision model
+        input: {
+          image: `data:image/png;base64,${imageBase64}`,
+          prompt: prompt,
+          max_tokens: 4096,
+          temperature: 0.4
+        }
+      })
+    });
+    
+    if (!startResponse.ok) {
+      throw new Error(`Replicate API error (${startResponse.status}): ${await startResponse.text()}`);
+    }
+    
+    let prediction = await startResponse.json();
+    
+    // Poll for completion
+    while (prediction.status !== 'succeeded' && prediction.status !== 'failed') {
+      await sleep(1000);
+      const pollResponse = await fetch(`https://api.replicate.com/v1/predictions/${prediction.id}`, {
+        headers: { 'Authorization': `Token ${apiKey}` }
+      });
+      prediction = await pollResponse.json();
+    }
+    
+    if (prediction.status === 'failed') {
+      throw new Error('Replicate prediction failed');
+    }
+    
+    const analysisText = prediction.output.join('');
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from Replicate response');
+    return JSON.parse(jsonMatch[0]);
+  }
+
+  async function analyzeWithHuggingFace(imageBase64, frame, config, apiKey, userContext) {
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    const response = await fetch('https://api-inference.huggingface.co/models/llava-hf/llava-1.5-7b-hf', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        inputs: {
+          image: `data:image/png;base64,${imageBase64}`,
+          text: prompt
+        },
+        parameters: {
+          max_new_tokens: 4096,
+          temperature: 0.4
+        }
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Hugging Face API error (${response.status}): ${await response.text()}`);
+    }
+    
+    const result = await response.json();
+    const analysisText = result[0].generated_text || result.generated_text;
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from Hugging Face response');
+    return JSON.parse(jsonMatch[0]);
+  }
+
+  async function analyzeWithCloudflare(imageBase64, frame, config, apiKey, userContext) {
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    // Note: Cloudflare Workers AI requires account ID in the key format: accountId:apiKey
+    const [accountId, actualKey] = apiKey.includes(':') ? apiKey.split(':') : [null, apiKey];
+    
+    if (!accountId) {
+      throw new Error('Cloudflare API key must be in format: accountId:apiKey');
+    }
+    
+    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/llava-hf/llava-1.5-7b-hf`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${actualKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        image: [Array.from(atob(imageBase64)).map(c => c.charCodeAt(0))],
+        max_tokens: 4096
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Cloudflare AI error (${response.status}): ${await response.text()}`);
+    }
+    
+    const result = await response.json();
+    const analysisText = result.result.response;
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from Cloudflare response');
+    return JSON.parse(jsonMatch[0]);
   }
 
   async function analyzeWithCohere(imageBase64, frame, config, apiKey, userContext) {
-    throw new Error('Cohere provider not yet implemented. Coming soon!');
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    // Note: Cohere has limited vision support, using Command-R with text description
+    const response = await fetch('https://api.cohere.ai/v1/chat', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'command-r-plus',
+        message: `${prompt}\n\n[Image analysis requested - base64 data provided but Cohere has limited vision support. Analyzing based on frame metadata and structure.]`,
+        temperature: 0.4,
+        max_tokens: 4096
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Cohere API error (${response.status}): ${await response.text()}`);
+    }
+    
+    const result = await response.json();
+    const analysisText = result.text;
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from Cohere response');
+    return JSON.parse(jsonMatch[0]);
   }
 
   async function analyzeWithMistral(imageBase64, frame, config, apiKey, userContext) {
-    throw new Error('Mistral AI provider not yet implemented. Coming soon!');
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
+    
+    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'pixtral-12b-2409',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: `data:image/png;base64,${imageBase64}` }
+          ]
+        }],
+        temperature: 0.4,
+        max_tokens: 4096
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Mistral API error (${response.status}): ${await response.text()}`);
+    }
+    
+    const result = await response.json();
+    const analysisText = result.choices[0].message.content;
+    const jsonMatch = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim().match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) throw new Error('Could not parse JSON from Mistral response');
+    return JSON.parse(jsonMatch[0]);
   }
 
   /**

@@ -64,7 +64,7 @@ curl -X POST http://localhost:8787 \
       "height": 812,
       "x": 0,
       "y": 0
-    }],
+    }],i
     "config": {
       "designType": "mobile",
       "platform": "ios",
