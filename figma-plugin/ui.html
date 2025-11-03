@@ -24,7 +24,7 @@
       padding-bottom: 12px;
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
-      height: 636px;
+      height: 780px;
     }
 
     .container {
@@ -197,6 +197,34 @@
       font-weight: 400;
       line-height: 1.5;
       color: #A3A3A3;
+    }
+
+    /* Context Textarea */
+    .context-textarea {
+      width: 100%;
+      min-height: 88px;
+      background: #2c2c2c;
+      border: 1px solid #525252;
+      border-radius: 8px;
+      padding: 12px 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #D4D4D4;
+      resize: vertical;
+      transition: all 0.2s;
+    }
+
+    .context-textarea::placeholder {
+      color: #737373;
+    }
+
+    .context-textarea:focus {
+      outline: none;
+      border-color: #ffffff;
+      background: #2c2c2c;
+      color: #ffffff;
     }
 
     /* Radio Options */
@@ -410,6 +438,16 @@
         </div>
       </div>
 
+      <!-- Context Section -->
+      <div class="section">
+        <div class="section-title">Context</div>
+        <textarea 
+          id="contextInput" 
+          class="context-textarea" 
+          placeholder="Give context of the analysis for filtered feedback"
+        ></textarea>
+      </div>
+
       <!-- Analysis Mode Section -->
       <div class="section">
         <div class="section-title">Select analysis mode</div>
@@ -472,6 +510,7 @@
     // Elements
     const fileUrlInput = document.getElementById('fileUrl');
     const testBtn = document.getElementById('testBtn');
+    const contextInput = document.getElementById('contextInput');
     const radioOptions = document.querySelectorAll('.radio-option');
     const frameText = document.getElementById('frameText');
     const frameCount = document.getElementById('frameCount');
@@ -540,7 +579,8 @@
           type: 'analyze',
           config: {
             mode: selectedMode,
-            fileUrl: fileUrl
+            fileUrl: fileUrl,
+            context: contextInput.value.trim() // Include user context
           }
         }
       }, '*');

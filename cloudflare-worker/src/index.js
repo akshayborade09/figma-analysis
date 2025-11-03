@@ -128,19 +128,33 @@ export default {
         imageBase64,
         frame,
         payload.config,
-        env.AIML_API_KEY
+        env.AIML_API_KEY,
+        payload.userContext || ''
       );
       console.log(`✅ Received ${feedbackItems.length} feedback items`);
 
       // 4. Post comments to Figma
       console.log('💬 Step 4: Posting comments to Figma...');
-      await postCommentsToFigma(
-        payload.fileKey,
-        frame.id,
-        feedbackItems,
-        frame.name,
-        env.FIGMA_ACCESS_TOKEN
-      );
+      
+      // For flow mode, post individual frame summary + detailed comments
+      // For other modes, post standard clustered comments
+      if (payload.mode === 'flow') {
+        await postFlowFrameComments(
+          payload.fileKey,
+          frame.id,
+          feedbackItems,
+          frame.name,
+          env.FIGMA_ACCESS_TOKEN
+        );
+      } else {
+        await postCommentsToFigma(
+          payload.fileKey,
+          frame.id,
+          feedbackItems,
+          frame.name,
+          env.FIGMA_ACCESS_TOKEN
+        );
+      }
       console.log('✅ Comments posted successfully');
 
       return { 
@@ -205,8 +219,8 @@ export default {
   /**
    * Analyze with AIML API (GPT-4o-mini Vision - FREE)
    */
-  async function analyzeWithAIML(imageBase64, frame, config, aimlKey) {
-    const prompt = buildAnalysisPrompt(frame, config);
+  async function analyzeWithAIML(imageBase64, frame, config, aimlKey, userContext = '') {
+    const prompt = buildAnalysisPrompt(frame, config, userContext);
 
     console.log('🤖 Sending to AIML API (GPT-4o-mini)...');
 
@@ -279,7 +293,7 @@ export default {
   /**
    * Build comprehensive UX psychology analysis prompt
    */
-  function buildAnalysisPrompt(frame, config) {
+  function buildAnalysisPrompt(frame, config, userContext = '') {
     // Format text content
     const textContentStr = frame.textContent && frame.textContent.length > 0 
       ? frame.textContent.join('\n') 
@@ -295,13 +309,18 @@ export default {
       ? JSON.stringify(frame.prototypeLinks, null, 2)
       : 'No prototype connections';
     
+    // Add user context if provided
+    const userContextSection = userContext 
+      ? `\n**USER PROVIDED CONTEXT:**\n${userContext}\n\nPlease consider this context when providing feedback.\n`
+      : '';
+    
     return `You are an expert UX researcher and behavioral psychologist analyzing a ${config.designType} screen.
 
 **SCREEN CONTEXT:**
 - Name: "${frame.name}"
 - Type: ${frame.flowContext?.screenType || 'unknown'}
 - Purpose: ${frame.flowContext?.purpose || 'Not specified'}
-- Dimensions: ${frame.width}×${frame.height}px
+- Dimensions: ${frame.width}×${frame.height}px${userContextSection}
 
 **TEXT CONTENT ON SCREEN:**
 ${textContentStr}
@@ -411,6 +430,47 @@ Be specific, actionable, and explain the 'WHY' behind each recommendation using 
 RESPOND WITH ONLY THE JSON ARRAY. NO OTHER TEXT.`;
   }
   
+  /**
+   * Post flow frame comments (one collective comment above frame)
+   */
+  async function postFlowFrameComments(fileKey, nodeId, feedbackItems, frameName, figmaToken) {
+    const url = `https://api.figma.com/v1/files/${fileKey}/comments`;
+  
+    // Map to severity levels
+    const criticalItems = feedbackItems.filter(f => f.severity === 'critical' || f.severity === 'high');
+    const moderateItems = feedbackItems.filter(f => f.severity === 'medium');
+    const goodItems = feedbackItems.filter(f => f.severity === 'low' || f.severity === 'positive');
+  
+    // Create one collective comment with all feedback categories
+    let comment = `Frame: "${frameName}"\n\n`;
+    
+    if (criticalItems.length > 0) {
+      comment += `CRITICAL (${criticalItems.length}):\n`;
+      criticalItems.forEach((item, index) => {
+        comment += `${index + 1}. ${item.finding}\n`;
+      });
+      comment += `\n`;
+    }
+    
+    if (moderateItems.length > 0) {
+      comment += `MODERATE (${moderateItems.length}):\n`;
+      moderateItems.forEach((item, index) => {
+        comment += `${index + 1}. ${item.finding}\n`;
+      });
+      comment += `\n`;
+    }
+    
+    if (goodItems.length > 0) {
+      comment += `GOOD (${goodItems.length}):\n`;
+      goodItems.forEach((item, index) => {
+        comment += `${index + 1}. ${item.finding}\n`;
+      });
+    }
+    
+    // Post single comment above frame
+    await postSingleComment(url, nodeId, comment, figmaToken, { x: 0.5, y: -0.1 });
+  }
+
   /**
    * Post comments to Figma
    */

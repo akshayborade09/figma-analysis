@@ -5,8 +5,8 @@
 
 // Show the plugin UI
 figma.showUI(__html__, { 
-  width: 440, 
-  height: 636,
+  width: 460, 
+  height: 780,
   themeColors: true 
 });
 
@@ -102,6 +102,7 @@ async function performAnalysis(config: any) {
       fileName: figma.root.name || 'Untitled',
       fileUrl: `https://www.figma.com/design/${fileKey}`,
       frameData: frameData,
+      userContext: config.context || '', // User-provided context for analysis
       config: config,
       metadata: {
         triggeredBy: figma.currentUser?.name || 'Unknown',
