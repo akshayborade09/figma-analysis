@@ -24,7 +24,7 @@
       padding-bottom: 12px;
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
-      height: 780px;
+      height: 880px;
     }
 
     .container {
@@ -159,7 +159,7 @@
       background: #2c2c2c;
       border: 1px solid #525252;
       border-radius: 8px;
-      padding: 12px 8px;
+      padding: 12px 32px 12px 8px;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 12px;
       font-weight: 400;
@@ -183,20 +183,13 @@
       color: #ffffff;
     }
 
-    .api-key-input-wrapper {
-      flex: 1;
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
     .api-key-input {
-      width: 100%;
+      flex: 1;
       height: 40px;
       background: #2c2c2c;
       border: 1px solid #525252;
       border-radius: 8px;
-      padding: 12px 40px 12px 8px;
+      padding: 12px 8px;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 12px;
       font-weight: 400;
@@ -212,30 +205,6 @@
       outline: none;
       border-color: #ffffff;
       color: #ffffff;
-    }
-
-    .copy-btn {
-      position: absolute;
-      right: 8px;
-      width: 24px;
-      height: 24px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.2s;
-      padding: 0;
-    }
-
-    .copy-btn:hover {
-      opacity: 0.7;
-    }
-
-    .copy-btn svg {
-      width: 16px;
-      height: 16px;
     }
 
     .test-connection-btn {
@@ -268,6 +237,14 @@
     .test-connection-btn svg {
       width: 16px;
       height: 16px;
+    }
+
+    /* Divider */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: #525252;
+      margin: 8px 0;
     }
 
     /* Frame Selection */
@@ -541,7 +518,7 @@
         
         <div class="api-key-group">
           <select id="aiProvider" class="provider-select">
-            <option value="">API Provider</option>
+            <option value="">Select AI tool</option>
             <option value="groq">Groq</option>
             <option value="gemini">Gemini</option>
             <option value="aiml">AI/ML API</option>
@@ -556,20 +533,12 @@
             <option value="mistral">Mistral AI</option>
           </select>
 
-          <div class="api-key-input-wrapper">
-            <input 
-              type="password" 
-              id="apiKeyInput" 
-              class="api-key-input" 
-              placeholder="Paste your API Key here"
-            >
-            <button id="copyBtn" class="copy-btn" title="Copy API Key">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="5.5" y="5.5" width="8" height="8" rx="1" stroke="#A3A3A3" stroke-width="1.5"/>
-                <path d="M3.5 10.5H2.5C1.94772 10.5 1.5 10.0523 1.5 9.5V2.5C1.5 1.94772 1.94772 1.5 2.5 1.5H9.5C10.0523 1.5 10.5 1.94772 10.5 2.5V3.5" stroke="#A3A3A3" stroke-width="1.5"/>
-              </svg>
-            </button>
-          </div>
+          <input 
+            type="password" 
+            id="apiKeyInput" 
+            class="api-key-input" 
+            placeholder="Paste your API Key here"
+          >
         </div>
 
         <button id="testConnectionBtn" class="test-connection-btn">
@@ -578,6 +547,8 @@
           </svg>
           <span>Test connection</span>
         </button>
+
+        <div class="divider"></div>
       </div>
 
       <!-- Frame Selection Section -->
@@ -674,7 +645,6 @@
     const fileUrlInput = document.getElementById('fileUrl');
     const aiProviderSelect = document.getElementById('aiProvider');
     const apiKeyInput = document.getElementById('apiKeyInput');
-    const copyBtn = document.getElementById('copyBtn');
     const testConnectionBtn = document.getElementById('testConnectionBtn');
     const contextInput = document.getElementById('contextInput');
     const radioOptions = document.querySelectorAll('.radio-option');
@@ -737,29 +707,6 @@
         console.log('Cannot save to localStorage');
       }
       updateAnalyzeButton();
-    });
-
-    // Copy API Key to clipboard
-    copyBtn.addEventListener('click', async () => {
-      const key = apiKeyInput.value;
-      if (!key) {
-        showToast('No API key to copy', 'error');
-        return;
-      }
-      
-      try {
-        await navigator.clipboard.writeText(key);
-        showToast('API key copied!', 'success');
-      } catch (e) {
-        // Fallback for older browsers
-        const tempInput = document.createElement('input');
-        tempInput.value = key;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        showToast('API key copied!', 'success');
-      }
     });
 
     // Test Connection Button
